@@ -1,0 +1,627 @@
+/* BusyBuddy.Toys - Under Construction Landing Page Styles
+   -------------------------------------------------------
+   - Fullscreen blurred video background (local or YouTube)
+   - Glassmorphism content card with pastel accents
+   - Animated progress bar with liquid-glass effect
+   - Subtle floating particles
+*/
+
+/* Reset & base typography */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  font-family: "Geologica", system-ui, -apple-system, BlinkMacSystemFont,
+    "SF Pro Text", "Segoe UI", sans-serif;
+  color: #f7f7fb;
+  background: radial-gradient(circle at top, #1d2230 0, #050711 55%, #000000 100%);
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  height: 100%;
+}
+
+/* Root layout */
+.bb-root {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  transition:
+    background-color 0.6s ease,
+    color 0.6s ease;
+}
+
+/* Day/Night theme modifiers */
+.bb-root--night {
+  color: #f7f7fb;
+}
+
+.bb-root--day {
+  color: #0b1020;
+}
+
+/* Three.js canvas container */
+.bb-three-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.bb-three-container canvas {
+  display: block;
+}
+
+.bb-main {
+  position: relative;
+  z-index: 2;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  transition: background-color 0.6s ease;
+}
+
+/* Fallback background (if WebGL not supported) */
+.bb-bg-fallback {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  display: none; /* Hidden by default, shown only if WebGL fails */
+}
+
+.bb-bg-mediaWrapper {
+  position: absolute;
+  inset: -10px;
+  filter: blur(9px);
+  transform: scale(1.03);
+}
+
+.bb-bg-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border: none;
+}
+
+.bb-bg-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+      circle at top,
+      rgba(31, 39, 70, 0.35),
+      rgba(7, 9, 18, 0.5)
+    ),
+    linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.05),
+      rgba(0, 0, 0, 0.4) 55%,
+      rgba(0, 0, 0, 0.55)
+    );
+  mix-blend-mode: multiply;
+  transition: background 0.9s ease, opacity 0.9s ease;
+}
+
+/* Day theme: чуть светлее и теплее фон */
+.bb-root--day .bb-bg-overlay {
+  background: radial-gradient(
+      circle at top,
+      rgba(255, 242, 220, 0.55),
+      rgba(210, 227, 255, 0.65)
+    ),
+    linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.55),
+      rgba(255, 255, 255, 0.1) 55%,
+      rgba(255, 255, 255, 0.0)
+    );
+  mix-blend-mode: normal;
+}
+
+/* Floating pastel particles (subtle) */
+.bb-particles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.bb-particle {
+  position: absolute;
+  border-radius: 999px;
+  opacity: 0.22;
+  filter: blur(1px);
+  mix-blend-mode: screen;
+  animation: bb-float 32s linear infinite;
+}
+
+.bb-particle--1 {
+  width: 220px;
+  height: 220px;
+  background: radial-gradient(circle, #ffd1dc 0, rgba(255, 209, 220, 0) 70%);
+  top: 10%;
+  left: -5%;
+  animation-delay: -4s;
+}
+
+.bb-particle--2 {
+  width: 260px;
+  height: 260px;
+  background: radial-gradient(circle, #c5f5d8 0, rgba(197, 245, 216, 0) 70%);
+  top: 60%;
+  left: 70%;
+  animation-delay: -12s;
+}
+
+.bb-particle--3 {
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, #d0e5ff 0, rgba(208, 229, 255, 0) 70%);
+  top: 75%;
+  left: 10%;
+  animation-delay: -20s;
+}
+
+.bb-particle--4 {
+  width: 160px;
+  height: 160px;
+  background: radial-gradient(circle, #ffe6c7 0, rgba(255, 230, 199, 0) 70%);
+  top: 25%;
+  left: 80%;
+  animation-delay: -28s;
+}
+
+.bb-particle--5 {
+  width: 180px;
+  height: 180px;
+  background: radial-gradient(circle, #e1d7ff 0, rgba(225, 215, 255, 0) 70%);
+  top: -5%;
+  left: 40%;
+  animation-delay: -8s;
+}
+
+.bb-particle--6 {
+  width: 140px;
+  height: 140px;
+  background: radial-gradient(circle, #c9f4ff 0, rgba(201, 244, 255, 0) 70%);
+  top: 50%;
+  left: -10%;
+  animation-delay: -16s;
+}
+
+@keyframes bb-float {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(30px, -40px, 0) scale(1.08);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+/* Glassmorphism card */
+.bb-card {
+  position: relative;
+  max-width: 520px;
+  width: 100%;
+  padding: 2.2rem 2rem 2.4rem;
+  border-radius: 24px;
+  background: radial-gradient(
+      circle at top left,
+      rgba(255, 255, 255, 0.18),
+      transparent 55%
+    ),
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.14),
+      rgba(255, 255, 255, 0.04)
+    );
+  border: 1px solid rgba(255, 255, 255, 0.26);
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.7),
+    0 0 0 1px rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  color: #f9f7ff;
+  display: flex;
+  flex-direction: column;
+  gap: 1.3rem;
+
+  /* Subtle gradient border glow */
+  isolation: isolate;
+}
+
+.bb-card,
+.bb-card::before,
+.bb-card::after {
+  transition:
+    background 0.6s ease,
+    border-color 0.6s ease,
+    box-shadow 0.6s ease,
+    color 0.6s ease,
+    opacity 0.6s ease;
+}
+
+/* Day theme: чуть более светлая карта и мягкая тень */
+.bb-root--day .bb-card {
+  background: radial-gradient(
+      circle at top left,
+      rgba(255, 255, 255, 0.9),
+      rgba(255, 255, 255, 0.7)
+    );
+  border-color: rgba(255, 255, 255, 0.8);
+  box-shadow:
+    0 20px 40px rgba(137, 176, 214, 0.45),
+    0 0 0 1px rgba(255, 255, 255, 0.4);
+  color: #111827;
+}
+
+.bb-root--day .bb-card::before {
+  opacity: 0.25;
+}
+
+.bb-root--day .bb-card::after {
+  opacity: 0.22;
+}
+
+.bb-card::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(
+    130deg,
+    rgba(255, 209, 220, 0.85),
+    rgba(197, 245, 216, 0.75),
+    rgba(208, 229, 255, 0.9)
+  );
+  opacity: 0.17;
+  z-index: -1;
+}
+
+.bb-card::after {
+  /* Soft reflection band */
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 12%;
+  right: 18%;
+  height: 40%;
+  border-radius: 999px;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.45),
+    rgba(255, 255, 255, 0.02)
+  );
+  opacity: 0.18;
+  filter: blur(6px);
+  pointer-events: none;
+}
+
+.bb-card-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.bb-logoRow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  text-align: center;
+}
+
+.bb-logo {
+  height: 108px;
+  max-width: 210px;
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 22px rgba(0, 0, 0, 0.8));
+  transition: transform 0.6s ease, filter 0.6s ease;
+}
+
+.bb-title {
+  margin: 0;
+  font-size: clamp(1.9rem, 3vw, 2.25rem);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.bb-subtitle {
+  margin: 0;
+  font-size: 1rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(244, 240, 255, 0.78);
+  transition: color 0.6s ease;
+}
+
+.bb-root--day .bb-subtitle {
+  color: rgba(15, 23, 42, 0.75);
+}
+
+.bb-body-text {
+  margin: 0;
+  font-size: 0.98rem;
+  line-height: 1.6;
+  color: rgba(244, 242, 255, 0.9);
+}
+
+.bb-body-text:not(.bb-inlineRow) {
+  text-align: center;
+}
+
+.bb-root--day .bb-body-text {
+  color: rgba(31, 41, 55, 0.95);
+}
+
+/* Center text for body paragraphs, but not for inline rows with logos */
+.bb-body-text:not(.bb-inlineRow) {
+  text-align: center;
+}
+
+.bb-footnote {
+  margin: 0.5rem 0 0;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(230, 228, 245, 0.8);
+  transition: color 0.6s ease;
+}
+
+.bb-root--day .bb-footnote {
+  color: rgba(55, 65, 81, 0.9);
+}
+
+.bb-inlineRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.bb-inlineLogo {
+  height: 60px;
+  width: auto;
+  object-fit: contain;
+}
+
+/* Slightly larger height for Instagram so it matches Etsy wordmark visually */
+.bb-inlineLogo--insta {
+  height: 60px;
+}
+
+/* Theme toggle switch */
+.bb-themeToggle {
+  align-self: flex-end;
+  margin-bottom: 0.4rem;
+  cursor: pointer;
+}
+
+.bb-themeToggle-track {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 999px;
+  background: rgba(9, 9, 12, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  transition:
+    background 0.5s ease,
+    border-color 0.5s ease,
+    color 0.5s ease;
+}
+
+.bb-root--day .bb-themeToggle-track {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(148, 163, 184, 0.6);
+}
+
+.bb-themeToggle-knob {
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #fbbf24, #f97316);
+  box-shadow: 0 0 12px rgba(251, 191, 36, 0.9);
+  transition:
+    background 0.5s ease,
+    box-shadow 0.5s ease,
+    transform 0.5s ease;
+}
+
+.bb-root--day .bb-themeToggle-knob {
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+  box-shadow: 0 0 10px rgba(15, 23, 42, 0.7);
+}
+
+.bb-themeToggle-label {
+  opacity: 0.6;
+}
+
+.bb-themeToggle-track--night .bb-themeToggle-label--night,
+.bb-themeToggle-track--day .bb-themeToggle-label--day {
+  opacity: 1;
+}
+
+/* Progress styles */
+.bb-progress {
+  margin-top: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.bb-progress-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.bb-progress-label {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: rgba(235, 232, 253, 0.9);
+}
+
+.bb-progress-value {
+  font-variant-numeric: tabular-nums;
+  font-size: 1.1rem;
+}
+
+.bb-progress-symbol {
+  font-size: 0.78rem;
+  opacity: 0.85;
+  margin-left: 0.1rem;
+}
+
+.bb-progress-track {
+  position: relative;
+  width: 100%;
+  height: 0.85rem;
+  border-radius: 999px;
+  background: linear-gradient(
+      120deg,
+      rgba(255, 255, 255, 0.32),
+      rgba(255, 255, 255, 0.08)
+    ),
+    radial-gradient(circle at top, rgba(255, 255, 255, 0.45), transparent 68%);
+  background-blend-mode: soft-light;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.45),
+    0 10px 25px rgba(0, 0, 0, 0.55);
+  overflow: hidden;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.bb-progress-fill {
+  position: relative;
+  height: 100%;
+  border-radius: inherit;
+  background-image: linear-gradient(
+      120deg,
+      rgba(255, 209, 220, 0.9),
+      rgba(197, 245, 216, 0.96),
+      rgba(208, 229, 255, 1),
+      rgba(247, 220, 190, 0.95)
+    ),
+    radial-gradient(circle at top, rgba(255, 255, 255, 0.7), transparent 60%);
+  background-size: 180% 100%;
+  background-position: 0% 50%;
+  box-shadow:
+    0 0 25px rgba(197, 245, 216, 0.8),
+    0 0 38px rgba(208, 229, 255, 0.75);
+  transition:
+    width 0.8s cubic-bezier(0.22, 0.61, 0.36, 1),
+    background-position 8s linear;
+  animation: bb-flow 9s linear infinite;
+}
+
+.bb-progress-highlight {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.7),
+    rgba(255, 255, 255, 0.1)
+  );
+  mix-blend-mode: screen;
+  opacity: 0.6;
+}
+
+@keyframes bb-flow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.bb-progress-dates {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  color: rgba(225, 222, 242, 0.85);
+  opacity: 0.96;
+}
+
+/* Page load animation */
+.bb-main {
+  animation: bb-fadeInUp 800ms cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+  opacity: 0;
+}
+
+@keyframes bb-fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .bb-card {
+    padding: 1.7rem 1.4rem 1.9rem;
+    border-radius: 20px;
+  }
+
+  .bb-title {
+    font-size: clamp(1.7rem, 7vw, 2rem);
+  }
+
+  .bb-body-text {
+    font-size: 0.94rem;
+  }
+
+  .bb-progress-label {
+    font-size: 0.78rem;
+  }
+
+  .bb-progress-dates {
+    font-size: 0.72rem;
+  }
+}
+
+@media (min-width: 900px) {
+  .bb-card {
+    max-width: 560px;
+    padding: 2.5rem 2.4rem 2.7rem;
+  }
+}
+
+

@@ -1,0 +1,15 @@
+{
+  "name": "busybuddy-toys",
+  "version": "1.0.0",
+  "description": "BusyBuddy.Toys - Under Construction Landing Page",
+  "main": "server.js",
+  "scripts": {
+    "dev": "node server.js",
+    "build": "echo 'Static site - no build needed'",
+    "start": "node server.js"
+  },
+  "keywords": ["busybuddy", "toys", "montessori", "landing-page"],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}
