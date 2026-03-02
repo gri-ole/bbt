@@ -37,3 +37,18 @@ yarn-error.log*
 # Cursor
 .cursor/
 
+# Next.js
+.next/
+
+# Local workspace files
+*.code-workspace
+
+# случайные экспортированные страницы/папки (не часть проекта)
+media/*_files/
+media/*.html
+
+
+
+
+
+

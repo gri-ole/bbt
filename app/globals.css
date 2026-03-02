@@ -1,0 +1,309 @@
+/* BusyBuddy.Toys (Next.js) — baseline first: fixed background + centered window */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  overflow: hidden; /* no scroll-to-nowhere */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: #0f1220;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.bb-root {
+  position: relative;
+  height: 100vh;
+  width: 100%;
+  display: grid;
+  place-items: center;
+}
+
+.bb-videoBg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+}
+
+.bb-videoBg video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: blur(8px);
+  transform: scale(1.08);
+}
+
+.bb-videoOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  transition: background 500ms ease;
+}
+
+.bb-root.bb-light .bb-videoOverlay {
+  background: rgba(255, 255, 255, 0.20);
+}
+
+.bb-card {
+  position: relative;
+  z-index: 1;
+  width: min(600px, calc(100vw - 28px));
+  padding: 28px;
+  border-radius: 24px;
+  background: rgba(60, 60, 70, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.08) inset,
+    0 1px 0 rgba(255, 255, 255, 0.12) inset,
+    0 25px 50px -12px rgba(0, 0, 0, 0.5),
+    0 12px 24px -8px rgba(0, 0, 0, 0.35);
+}
+
+.bb-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.bb-logo {
+  display: block;
+  width: min(260px, 56vw);
+  height: auto;
+}
+
+.bb-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.bb-pillBtn {
+  appearance: none;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.10);
+  color: rgba(255, 255, 255, 0.92);
+  padding: 10px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: transform 120ms ease, background 200ms ease, border-color 200ms ease;
+}
+
+.bb-pillBtn:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.bb-pillBtn:active {
+  transform: translateY(1px);
+}
+
+.bb-langSeg {
+  display: flex;
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.bb-langSeg button {
+  border: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.82);
+  padding: 10px 12px;
+  cursor: pointer;
+}
+
+.bb-langSeg button[data-active="true"] {
+  background: rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.bb-title {
+  margin: 0 0 10px 0;
+  text-align: center;
+  font-size: clamp(2rem, 3.4vw, 2.6rem);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.bb-subtitle {
+  margin: 0 0 14px 0;
+  text-align: center;
+  font-size: 0.98rem;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.bb-body p {
+  margin: 0 0 10px 0;
+  text-align: center;
+}
+
+.bb-progress {
+  margin-top: 18px;
+}
+
+.bb-progressLabelRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.75);
+  margin-bottom: 8px;
+}
+
+.bb-track {
+  height: 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.10);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  overflow: hidden;
+}
+
+.bb-fill {
+  height: 100%;
+  border-radius: 999px;
+  width: 0%;
+  background: linear-gradient(90deg, rgba(130, 214, 255, 0.55), rgba(176, 138, 255, 0.70));
+  position: relative;
+}
+
+.bb-fill::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.22), transparent);
+  transform: translateX(-60%);
+  animation: bbWave 2.2s linear infinite;
+}
+
+@keyframes bbWave {
+  from { transform: translateX(-60%); }
+  to { transform: translateX(60%); }
+}
+
+.bb-ctaRow {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.bb-glassLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-decoration: none;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.10);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: rgba(255, 255, 255, 0.92);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.12) inset,
+    0 18px 40px -18px rgba(0, 0, 0, 0.55);
+  transition: transform 140ms ease, background 200ms ease, border-color 200ms ease;
+}
+
+.bb-glassLink:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.13);
+}
+
+.bb-glassLink:active {
+  transform: translateY(0px);
+}
+
+.bb-glassIcon {
+  width: 22px;
+  height: 22px;
+  display: block;
+}
+
+@media (min-width: 520px) {
+  .bb-ctaRow {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Day (light) mode overrides */
+.bb-root.bb-light .bb-card {
+  background: rgba(246, 248, 252, 0.9);
+  border: 1px solid rgba(15, 18, 32, 0.08);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.8) inset,
+    0 18px 45px -22px rgba(15, 18, 32, 0.45);
+  color: #11131f;
+}
+
+.bb-root.bb-light .bb-body p {
+  color: #11131f;
+}
+
+.bb-root.bb-light .bb-progressLabelRow {
+  color: rgba(17, 19, 31, 0.8);
+}
+
+.bb-root.bb-light .bb-subtitle {
+  color: rgba(17, 19, 31, 0.7);
+}
+
+.bb-root.bb-light .bb-track {
+  background: rgba(17, 19, 31, 0.06);
+  border-color: rgba(17, 19, 31, 0.12);
+}
+
+.bb-root.bb-light .bb-fill {
+  background: linear-gradient(90deg, rgba(111, 180, 255, 0.8), rgba(141, 120, 255, 0.9));
+}
+
+.bb-root.bb-light .bb-glassLink {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(15, 18, 32, 0.08);
+  color: #11131f;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.9) inset,
+    0 16px 36px -20px rgba(15, 18, 32, 0.45);
+}
+
+.bb-root.bb-light .bb-glassLink:hover {
+  background: rgba(255, 255, 255, 0.98);
+}
+
+.bb-root.bb-light .bb-pillBtn {
+  border-color: rgba(15, 18, 32, 0.12);
+  background: rgba(255, 255, 255, 0.95);
+  color: #11131f;
+}
+
+.bb-root.bb-light .bb-pillBtn:hover {
+  background: #ffffff;
+}
+
+.bb-root.bb-light .bb-langSeg {
+  border-color: rgba(15, 18, 32, 0.12);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.bb-root.bb-light .bb-langSeg button {
+  color: rgba(17, 19, 31, 0.7);
+}
+
+.bb-root.bb-light .bb-langSeg button[data-active="true"] {
+  background: rgba(17, 19, 31, 0.08);
+  color: #11131f;
+}
+
+

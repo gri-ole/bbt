@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+# Disallow admin/private paths
+Disallow: /studio/
+Disallow: /api/
+
+# Sitemaps
+Sitemap: https://www.busybuddy.toys/sitemap.xml
+
