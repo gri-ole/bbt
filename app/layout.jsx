@@ -5,6 +5,7 @@ const geologica = Geologica({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
   display: "swap",
+  preload: false, // отключаем автоматический preload чтобы убрать предупреждение браузера
 });
 
 export const metadata = {
@@ -139,9 +140,9 @@ export default function RootLayout({ children }) {
           }}
         />
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+      </body>
     </html>
   );
 }
-
-

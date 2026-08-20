@@ -1,5 +1,187 @@
 /* BusyBuddy.Toys - Under Construction Page Styles */
 
+/* Loading Screen */
+.loading-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 1;
+  transition: opacity 0.8s ease-out, visibility 0.8s ease-out;
+  visibility: visible;
+}
+
+.loading-screen.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Real background for loading screen */
+.loading-screen .video-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+}
+
+.loading-screen .video-background video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.loading-mobile-bg {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .loading-mobile-bg {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url("/media/mobile-busyboard.webp");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: -1;
+  }
+  
+  .loading-screen .video-background {
+    display: none;
+  }
+}
+
+.loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.loading-logo {
+  width: 140px;
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: logoFloat 2s ease-in-out infinite;
+}
+
+.loading-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.4));
+}
+
+.loading-progress-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  width: 280px;
+}
+
+.loading-progress-bar {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+.loading-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
+  border-radius: 10px;
+  transition: width 0.3s ease-out;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.loading-percentage {
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+@keyframes logoFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes textPulse {
+  0%, 100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Dark theme for loading screen */
+.under-construction.dark .loading-progress-bar {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.under-construction.dark .loading-progress-fill {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.8));
+}
+
+/* Light theme for loading screen */
+.under-construction.light .loading-progress-bar {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.under-construction.light .loading-progress-fill {
+  background: linear-gradient(90deg, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.7));
+}
+
+.under-construction.light .loading-percentage {
+  color: rgba(15, 23, 42, 0.95);
+  text-shadow: 0 2px 8px rgba(255, 255, 255, 0.6);
+}
+
+/* Hide main content while loading - плавное появление после загрузки */
+.under-construction > *:not(.loading-screen) {
+  opacity: 0;
+  transition: opacity 0.8s ease-in;
+  pointer-events: none;
+}
+
+.under-construction:not(:has(.loading-screen)) > *:not(.loading-screen) {
+  opacity: 1;
+  pointer-events: auto;
+}
+
 /* Reset & Base */
 *,
 *::before,
@@ -38,6 +220,26 @@ body {
   align-items: center;
   justify-content: center;
   z-index: 0;
+}
+
+/* 404 page: no extra scroll, just full viewport height */
+.under-construction-404 {
+  min-height: 100vh;
+}
+
+/* 404 page: no frosted glass card, just clean text on top of background */
+/* (base override; final override for dark 404 is placed further below for specificity) */
+.under-construction-404 .construction-card {
+  background: transparent;
+}
+
+/* 500 page: same behavior as 404 (no extra scroll, no glass card) */
+.under-construction-500 {
+  min-height: 100vh;
+}
+
+.under-construction-500 .construction-card {
+  background: transparent;
 }
 
 /* Video Background */
@@ -90,7 +292,37 @@ body {
 }
 
 .under-construction.light .video-overlay {
-  background: rgba(255, 255, 255, 0.3);
+  /* Much softer light mode - warm cream tint instead of harsh white */
+  background: rgba(250, 247, 240, 0.25); /* warm cream with slight opacity */
+}
+
+/* Mobile background: use static photo instead of video */
+@media (max-width: 768px) {
+  .video-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-image: url("/media/mobile-busyboard.webp");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  .video-background video {
+    display: none;
+  }
+
+   /* убираем градиентный fallback, чтобы не перекрывал фото */
+  .video-background .video-fallback {
+    display: none !important;
+  }
+
+  /* Отступ ~5мм между текстом описания контакта и формой */
+  .form-subtitle {
+    margin-bottom: 0;
+  }
 }
 
 /* Construction Card - Liquid Glass Effect */
@@ -119,6 +351,19 @@ body {
   display: flex;
   flex-direction: column;
 }
+
+/* Mobile: карточка поднята к верху экрана,
+   отступ сверху примерно равен боковым (симметрия на телефоне) */
+@media (max-width: 768px) {
+  .construction-card {
+    top: calc(5vw + env(safe-area-inset-top)); /* ~тот же визуальный отступ, что и слева/справа */
+    transform: translateX(-50%);
+  }
+}
+
+/* MOBILE LAYOUT
+   - оставляем карточку fixed, как на десктопе, чтобы она не \"уезжала\" при скролле
+   - вертикальный скролл даёт контейнер .under-construction (min-height: 300vh выше по коду) */
 
 .construction-card:first-of-type {
   animation: fadeInUp 0.6s ease-out;
@@ -173,6 +418,48 @@ body {
   column-gap: 2.5rem;
 }
 
+.site-footer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0; /* ниже карточки (карточка z-index: 1) */
+  padding: 0.5rem 1rem calc(0.5rem + env(safe-area-inset-bottom));
+  text-align: center;
+  font-size: 0.72rem;
+  line-height: 1.25;
+  letter-spacing: 0.02em;
+  opacity: 0.92;
+  pointer-events: none; /* чтобы не мешал кликам по UI */
+  backdrop-filter: blur(10px) saturate(140%);
+  -webkit-backdrop-filter: blur(10px) saturate(140%);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.under-construction.dark .site-footer {
+  color: rgba(255, 255, 255, 0.92);
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.55),
+    rgba(0, 0, 0, 0.22) 55%,
+    rgba(0, 0, 0, 0)
+  );
+  box-shadow: 0 -18px 40px rgba(0, 0, 0, 0.35);
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.55);
+}
+
+.under-construction.light .site-footer {
+  color: rgba(30, 25, 20, 0.85); /* softer warm dark */
+  background: linear-gradient(
+    to top,
+    rgba(252, 249, 243, 0.65),
+    rgba(250, 245, 235, 0.3) 55%,
+    rgba(250, 245, 235, 0)
+  );
+  border-top-color: rgba(200, 190, 175, 0.25);
+  box-shadow: 0 -18px 40px rgba(0, 0, 0, 0.08);
+}
+
 .under-construction.dark .form-shell {
   background: transparent;
   box-shadow: none;
@@ -193,30 +480,43 @@ body {
 }
 
 .form-title {
-  font-size: 1.7rem;
+  font-size: clamp(1.8rem, 4vw, 2.5rem); /* как у .card-content h1 */
   line-height: 1.2;
   font-weight: 700;
-  color: #0f172a;
+  color: #1a1a1a;
+  margin-bottom: 1rem; /* как у .card-content h1 */
+  transition: color 0.3s ease;
 }
 
 .under-construction.dark .form-title {
-  color: #e5e7eb;
+  color: #ffffff; /* как у .under-construction.dark .card-content h1 */
 }
 
 .form-title span {
   color: #2563eb;
 }
 
+.under-construction .form-title .form-title-brand {
+  color: #ffffff !important; /* "BusyBuddy.Toys" всегда белым, перекрываем любые наследованные цвета */
+}
+
 .form-subtitle {
-  font-size: 0.9rem;
-  line-height: 1.6;
-  opacity: 0.75;
+  font-size: clamp(1rem, 2vw, 1.2rem); /* как у .card-content p */
+  line-height: 1.6; /* как у .card-content p */
+  color: #555; /* как у .card-content p */
+  margin-bottom: 2rem; /* как у .card-content p */
+  transition: color 0.3s ease;
+  opacity: 1; /* убираем opacity, используем цвет как у первой карточки */
+}
+
+.under-construction.dark .form-subtitle {
+  color: rgba(255, 255, 255, 0.9); /* как у .under-construction.dark .card-content p */
 }
 
 .form-contact-grid {
   display: grid;
   gap: 0.75rem;
-  margin-top: 0.25rem;
+  margin-top: 0.5rem;
 }
 
 .form-contact-item {
@@ -319,6 +619,18 @@ body {
   gap: 0.4rem;
 }
 
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
 .contact-field label,
 .ui-label {
   font-size: 0.9rem;
@@ -391,9 +703,9 @@ body {
 
 .under-construction.light .contact-field input,
 .under-construction.light .contact-field textarea {
-  border-color: rgba(148, 163, 184, 0.6); /* slate-400 */
-  background: rgba(255, 255, 255, 0.92);
-  color: #0f172a; /* slate-900 */
+  border-color: rgba(200, 190, 175, 0.5); /* warm soft border */
+  background: rgba(253, 250, 245, 0.85); /* warm cream background */
+  color: #1a1a1a; /* softer black */
 }
 
 .under-construction.light .contact-field input::placeholder,
@@ -452,15 +764,38 @@ body {
 }
 
 @media (max-width: 768px) {
+  .construction-card {
+    padding: 1.5rem 1.4rem; /* чуть компактнее карточка по вертикали */
+  }
+
   .form-shell {
     grid-template-columns: minmax(0, 1fr);
-    row-gap: 1.75rem;
-    padding: 1.75rem 1.4rem;
+    row-gap: 0; /* управляем отступом вручную через margin/gap */
+    padding: 1.5rem 1.4rem;
+  }
+
+  /* аккуратный, но компактный отступ: заголовок ↔ текст и текст ↔ форма */
+  .form-copy {
+    gap: 0.15rem;
   }
 
   .contact-form {
     max-width: 100%;
-    margin-top: 0.25rem; /* нормальный отступ на мобильных */
+    margin-top: 0.15rem;
+    gap: 0.6rem;
+  }
+
+  .contact-field {
+    gap: 0.25rem;
+  }
+
+  .contact-field input,
+  .contact-field textarea {
+    padding: 0.6rem 0.85rem; /* меньше внутренний отступ по вертикали */
+  }
+
+  .contact-field textarea {
+    min-height: 90px; /* ниже textarea, чтобы форма лучше влезала в экран */
   }
 }
 
@@ -506,25 +841,54 @@ body {
 }
 
 .under-construction.light .construction-card {
-  background: rgba(255, 255, 255, 0.45);
-  border-color: rgba(255, 255, 255, 0.5);
+  /* Much softer warm cream glass - no harsh white */
+  background: rgba(252, 249, 243, 0.4); /* warm cream/beige tint */
+  border-color: rgba(245, 240, 230, 0.45); /* soft warm border */
   box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.3) inset,
-    0 1px 0 rgba(255, 255, 255, 0.6) inset,
-    0 25px 50px -12px rgba(0, 0, 0, 0.2),
-    0 12px 24px -8px rgba(0, 0, 0, 0.12);
+    0 0 0 1px rgba(240, 235, 225, 0.25) inset,
+    0 1px 0 rgba(250, 245, 235, 0.3) inset,
+    0 25px 50px -12px rgba(0, 0, 0, 0.15),
+    0 12px 24px -8px rgba(0, 0, 0, 0.08);
 }
 
 .under-construction.light .construction-card::before {
   background: linear-gradient(
     180deg,
-    rgba(255, 255, 255, 0.6) 0%,
+    rgba(250, 245, 235, 0.25) 0%,
     transparent 50%
   );
 }
 
 .under-construction.light .construction-card::after {
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  box-shadow: inset 0 1px 0 rgba(250, 245, 235, 0.25);
+}
+
+/* 404 dark page: completely remove glass underlay under text */
+.under-construction.dark.under-construction-404 .construction-card {
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border: none;
+  box-shadow: none;
+}
+
+.under-construction.dark.under-construction-404 .construction-card::before,
+.under-construction.dark.under-construction-404 .construction-card::after {
+  display: none;
+}
+
+/* 500 dark page: same treatment as 404, no glass underlay */
+.under-construction.dark.under-construction-500 .construction-card {
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border: none;
+  box-shadow: none;
+}
+
+.under-construction.dark.under-construction-500 .construction-card::before,
+.under-construction.dark.under-construction-500 .construction-card::after {
+  display: none;
 }
 
 /* Card Header */
@@ -796,9 +1160,25 @@ body {
     margin-bottom: 1.5rem;
   }
   
+  /* Применяем те же стили ко второй карточке */
+  .form-title {
+    font-size: clamp(1.5rem, 5vw, 2rem); /* как у .card-content h1 на мобильных */
+    margin-bottom: 0.75rem; /* как у .card-content h1 на мобильных */
+  }
+  
+  .form-subtitle {
+    font-size: clamp(0.9rem, 3vw, 1.1rem); /* как у .card-content p на мобильных */
+    margin-bottom: 1.5rem; /* как у .card-content p на мобильных */
+  }
+  
   .etsy-button {
     padding: 0.875rem 1.5rem;
     font-size: 0.95rem;
+  }
+  
+  /* Отступ от "Follow us" до нижнего края карточки = padding карточки (как у "Contact us") */
+  .card-panel-main .social-links {
+    margin-bottom: 1.5rem; /* тот же отступ, что и padding карточки */
   }
 }
 
@@ -810,7 +1190,12 @@ body {
   
   .social-links {
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.9rem;
+  }
+  
+  /* Отступ от "Follow us" до нижнего края карточки = padding карточки (как у "Contact us") */
+  .card-panel-main .social-links {
+    margin-bottom: 1.1rem; /* тот же отступ, что и padding карточки на маленьких экранах */
   }
   
   .etsy-button,
@@ -918,6 +1303,21 @@ body {
   pointer-events: none;
   opacity: 1;
   visibility: visible;
+}
+
+.scroll-arrows {
+  display: none;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.scroll-arrow-icon {
+  display: inline-block;
+}
+
+.scroll-arrow-label {
+  display: inline-block;
 }
 .scroll-downs {
   width: 27px;
@@ -1464,6 +1864,120 @@ body {
   }
 }
 
+/* Mobile: show arrow button instead of mouse, make it clickable */
+@media (max-width: 768px) {
+  /* Mobile contact form: put labels inside inputs to save vertical space */
+  .card-panel-form .contact-field {
+    gap: 0;
+  }
+
+  .card-panel-form .contact-field label {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+  }
+
+  .scroll-indicator {
+    /* Мобильные кнопки: всегда между карточкой и футером.
+       Футер фиксирован внизу, поэтому поднимаем кнопку выше него
+       с учётом safe-area снизу. */
+    bottom: calc(env(safe-area-inset-bottom) + 3.5rem);
+    top: auto;
+    pointer-events: auto;
+  }
+
+  .scroll-downs {
+    width: auto;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem; /* расстояние между кнопками Home и Contact us */
+    flex-direction: row; /* кнопки в ряд */
+  }
+
+  .scroll-downs .mousey {
+    display: none;
+  }
+
+  .scroll-arrows {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Стиль как у мыши, но с прежней высотой и анимацией */
+    width: auto;
+    padding: 0.55rem 0.9rem; /* прежняя высота кнопки */
+    border-radius: 25px; /* как у мыши */
+    border: 2px solid rgba(255, 255, 255, 0.9); /* как у мыши */
+    background: transparent; /* прозрачный фон, как у мыши */
+    color: rgba(255, 255, 255, 0.9); /* цвет текста как у границы мыши */
+    font-size: 1.1rem; /* прежний размер шрифта */
+    line-height: 1;
+    opacity: 0.75; /* как у мыши */
+    box-sizing: content-box; /* как у мыши */
+    box-shadow: none; /* убираем тень, как у мыши */
+    animation: arrowPulse 1.6s ease-in-out infinite; /* возвращаем анимацию */
+    gap: 0.5rem;
+  }
+
+  /* По умолчанию (первая карточка) показываем только кнопку Contact us (вниз) */
+  .scroll-arrows-up {
+    display: none;
+  }
+
+  /* Когда активна форма (вторая карточка), показываем только кнопку Home (вверх) */
+  .scroll-indicator[data-mode="form"] .scroll-arrows-up {
+    display: flex;
+  }
+
+  .scroll-indicator[data-mode="form"] .scroll-arrows-down {
+    display: none;
+  }
+
+  .under-construction.light .scroll-arrows {
+    background: transparent;
+    color: rgba(15, 23, 42, 0.85);
+    border-color: rgba(15, 23, 42, 0.85); /* как у мыши в светлой теме */
+    box-shadow: none;
+  }
+}
+
+@keyframes arrowPulse {
+  0% {
+    transform: translateY(0);
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.8);
+  }
+  50% {
+    transform: translateY(4px);
+    box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+  }
+  100% {
+    transform: translateY(0);
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+  }
+}
+
+@media (max-width: 768px) {
+  .scroll-arrow-label {
+    display: inline-block;
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: rgba(248, 250, 252, 0.9);
+  }
+
+  .under-construction.light .scroll-label {
+    color: rgba(15, 23, 42, 0.85);
+  }
+}
+
 /* Success Popup */
 .success-popup-overlay {
   position: fixed;
@@ -1529,15 +2043,9 @@ body {
   }
 }
 
-@media (max-height: 720px) {
-  /* On very short viewports hide e-mail contact row to keep card within height */
-  .form-contact-email {
-    display: none;
-  }
-}
-
-@media (max-height: 640px) {
-  /* On ultra-short viewports also hide Instagram row */
+/* On mobile we полностью убираем e-mail и Instagram строки в карточке контакта */
+@media (max-width: 768px) {
+  .form-contact-email,
   .form-contact-instagram {
     display: none;
   }
@@ -1577,25 +2085,57 @@ body {
     margin-bottom: 1.5rem;
   }
 
+  /* Используем стандартные стили как у первой карточки */
   .form-copy {
-    margin-top: -0.8rem; /* подтягиваем Contact BusyBuddy.Toys и сабтайтл выше */
-    gap: 0.45rem;
-  }
-
-  .form-title {
-    font-size: 1.55rem;
-  }
-
-  .form-subtitle {
-    font-size: 0.88rem;
-    line-height: 1.5;
+    margin-top: -0.35rem; /* стандартный отступ */
+    gap: 0.55rem; /* стандартный gap */
   }
 
   .form-shell {
-    row-gap: 1.3rem;
+    row-gap: 0;
   }
 
   .contact-form {
-    gap: 0.7rem;
+    gap: 0.75rem; /* стандартный gap */
+    margin-top: 0;
+  }
+}
+
+/* Compact contact card on mobile to optimize vertical space */
+@media (max-width: 768px) {
+  .form-contact-grid {
+    display: none;
+    margin-top: 0;
+    gap: 0;
+  }
+
+  /* Убираем специфичные стили для второй карточки - используем те же, что и для первой */
+  .card-panel-form .form-shell {
+    padding: 0; /* убираем дополнительный padding, используем padding карточки */
+    row-gap: 0;
+  }
+
+  /* Используем стандартные отступы как у первой карточки */
+  .card-panel-form .form-copy {
+    gap: 0.55rem; /* как у стандартного .form-copy */
+  }
+
+  .card-panel-form .contact-form {
+    gap: 0.75rem; /* стандартный gap */
+    margin-top: 0;
+  }
+
+  .card-panel-form .contact-field {
+    gap: 0.5rem; /* стандартный gap */
+  }
+
+  .card-panel-form .contact-field input,
+  .card-panel-form .contact-field textarea {
+    padding: 0.75rem 1rem; /* стандартный padding */
+    min-height: 44px; /* сохраняем комфортную высоту для тапа */
+  }
+
+  .card-panel-form .contact-submit {
+    margin-top: 0.5rem; /* стандартный отступ */
   }
 }
