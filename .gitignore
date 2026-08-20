@@ -37,6 +37,9 @@ yarn-error.log*
 # Cursor
 .cursor/
 
+# Local raw assets (all real assets live in public/media)
+/media/
+
 # Next.js
 .next/
 
@@ -46,7 +49,6 @@ yarn-error.log*
 # случайные экспортированные страницы/папки (не часть проекта)
 media/*_files/
 media/*.html
-
 
 
 

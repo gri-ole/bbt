@@ -16,6 +16,14 @@ const TRANSLATIONS = {
     contactName: "Name",
     contactEmail: "Email",
     contactMessage: "Message",
+    contactNamePlaceholder: "Kate",
+    contactEmailPlaceholder: "kate-mail@mail.com",
+    contactMessagePlaceholder:
+      "Questions about our toys, a custom order, or wholesale? Send a message - we reply quickly.",
+    contactNameMobilePlaceholder: "Name",
+    contactEmailMobilePlaceholder: "Email",
+    contactMessageMobilePlaceholder:
+      "Questions about our toys, a custom order, or wholesale? Send a message - we reply quickly.",
     contactSend: "Send message",
     contactSent: "Thanks! We’ll get back to you soon.",
     contactAria: "Contact form",
@@ -25,6 +33,8 @@ const TRANSLATIONS = {
     visitEtsyAria: "Visit our Etsy shop",
     instagramAria: "Follow us on Instagram",
     languageToggleAria: "Change language",
+    homeLabel: "Home",
+    homeAria: "Back to main section",
   },
   de: {
     title: "BusyBuddy.Toys wird gerade neu aufgebaut",
@@ -38,6 +48,14 @@ const TRANSLATIONS = {
     contactName: "Name",
     contactEmail: "Email",
     contactMessage: "Nachricht",
+    contactNamePlaceholder: "Katrin",
+    contactEmailPlaceholder: "katrin-mail@mail.com",
+    contactMessagePlaceholder:
+      "Fragen zu unseren Spielzeugen, einer Sonderanfertigung oder Großhandel? Schreib uns – wir antworten schnell.",
+    contactNameMobilePlaceholder: "Name",
+    contactEmailMobilePlaceholder: "Email",
+    contactMessageMobilePlaceholder:
+      "Fragen zu unseren Spielzeugen, einer Sonderanfertigung oder Großhandel? Schreib uns – wir antworten schnell.",
     contactSend: "Nachricht senden",
     contactSent: "Danke! Wir melden uns bald.",
     contactAria: "Kontaktformular",
@@ -47,11 +65,13 @@ const TRANSLATIONS = {
     visitEtsyAria: "Besuche unseren Etsy-Shop",
     instagramAria: "Folge uns auf Instagram",
     languageToggleAria: "Sprache ändern",
+    homeLabel: "Home",
+    homeAria: "Zur Hauptkarte zurückkehren",
   },
 };
 
 const START_DATE = new Date("2026-02-20T00:00:00");
-const END_DATE = new Date("2026-05-01T23:59:59");
+const END_DATE = new Date("2026-09-20T23:59:59");
 
 function isNightTime() {
   const now = new Date();
@@ -76,6 +96,11 @@ export default function LandingClient() {
   const [sent, setSent] = useState(false);
   const [showEmail, setShowEmail] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadingProgress, setLoadingProgress] = useState(0);
+  const [isMobileLayout, setIsMobileLayout] = useState(false);
+  const [isSending, setIsSending] = useState(false);
+  const [sendError, setSendError] = useState(null);
   const etsyRef = useRef(null);
   const fullCardRef = useRef(null);
   const mainPanelRef = useRef(null);
@@ -104,6 +129,17 @@ export default function LandingClient() {
     tick();
     const id = setInterval(tick, 60 * 1000);
     return () => clearInterval(id);
+  }, []);
+
+  // Track mobile / desktop layout for placeholders
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const handleResize = () => {
+      setIsMobileLayout(window.innerWidth <= 768);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
 
@@ -223,7 +259,10 @@ export default function LandingClient() {
     )
       return;
 
-    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const isMobile =
+      typeof window !== "undefined" ? window.innerWidth <= 768 : false;
+    const prefersReduced =
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches || isMobile;
 
     // 3D setup
     gsap.set([titleEl, descEl, progressEl, socialEl, etsyEl, instagramEl], {
@@ -358,35 +397,46 @@ export default function LandingClient() {
       }
       transitionProgress = Math.min(1, Math.max(0, transitionProgress));
 
-      // Reduced motion: simple crossfade only
-      if (prefersReduced) {
-        gsap.set(mainPanel, {
-          opacity: 1 - transitionProgress,
-          pointerEvents: transitionProgress < 0.5 ? "auto" : "none",
-        });
-        gsap.set(formPanel, {
-          opacity: transitionProgress,
-          pointerEvents: transitionProgress >= 0.5 ? "auto" : "none",
-        });
-        if (scrollIndicatorEl) {
-          // Мышь должна быть скрыта, если форма видна (transitionProgress >= 0.5)
-          const mouseOpacity = transitionProgress >= 0.5 ? 0 : (1 - transitionProgress);
-          gsap.set(scrollIndicatorEl, { opacity: mouseOpacity });
-          if (scrollIndicatorInnerEl)
-            gsap.set(scrollIndicatorInnerEl, {
-              scale: transitionProgress >= 0.5 ? 1.3 : (1 + 0.3 * transitionProgress),
-              y: 0,
-            });
-        }
-        return;
-      }
-
       const p = transitionProgress;
       const outOpacity = 1 - p;
 
       // Animate available content height so the form fits inside the glass box
       const contentH = Math.round(mainH + (formH - mainH) * p);
       gsap.set(cardContent, { height: contentH });
+
+      // Reduced motion (включая мобильные): только кроссфейд и изменение высоты карточки,
+      // без 3D‑разлёта текста.
+      if (prefersReduced) {
+        gsap.set(mainPanel, {
+          opacity: 1 - p,
+          pointerEvents: p < 0.5 ? "auto" : "none",
+        });
+        gsap.set(formPanel, {
+          opacity: p,
+          pointerEvents: p >= 0.5 ? "auto" : "none",
+        });
+        if (scrollIndicatorEl) {
+          scrollIndicatorEl.dataset.mode = p >= 0.5 ? "form" : "main";
+          if (isMobile) {
+            // Мобильные кнопки: остаются на месте и не исчезают
+            if (scrollIndicatorInnerEl)
+              gsap.set(scrollIndicatorInnerEl, {
+                scale: 1,
+                y: 0,
+              });
+            gsap.set(scrollIndicatorEl, { opacity: 1 });
+          } else {
+            // Десктопная мышь: слегка уезжает и гаснет
+            if (scrollIndicatorInnerEl)
+              gsap.set(scrollIndicatorInnerEl, {
+                scale: 1 + 0.3 * p,
+                y: -20 * p,
+              });
+            gsap.set(scrollIndicatorEl, { opacity: 1 - p });
+          }
+        }
+        return;
+      }
 
       // MAIN content "flies away" (3D scatter + grow)
       if (titleWords.length) {
@@ -454,14 +504,25 @@ export default function LandingClient() {
       gsap.set(socialEl, { opacity: outOpacity });
 
       if (scrollIndicatorEl) {
-        // Мышь должна быть скрыта, если форма видна (transitionProgress >= 0.5)
-        const mouseOpacity = p >= 0.5 ? 0 : outOpacity;
-        gsap.set(scrollIndicatorEl, { opacity: mouseOpacity });
-        if (scrollIndicatorInnerEl)
-          gsap.set(scrollIndicatorInnerEl, {
-            scale: p >= 0.5 ? 1.5 : (1 + 0.5 * p),
-            y: p >= 0.5 ? 24 : (24 * p),
-          });
+        scrollIndicatorEl.dataset.mode = p >= 0.5 ? "form" : "main";
+
+        if (isMobile) {
+          // На мобильных оставляем кнопки на месте, без "улёта"
+          if (scrollIndicatorInnerEl)
+            gsap.set(scrollIndicatorInnerEl, {
+              scale: 1,
+              y: 0,
+            });
+          gsap.set(scrollIndicatorEl, { opacity: 1 });
+        } else {
+          // На десктопе мышь улетает и исчезает вместе с текстом первой карточки
+          if (scrollIndicatorInnerEl)
+            gsap.set(scrollIndicatorInnerEl, {
+              scale: 1 + 0.4 * p,
+              y: -30 * p,
+            });
+          gsap.set(scrollIndicatorEl, { opacity: outOpacity });
+        }
       }
 
       if (etsyEl)
@@ -711,22 +772,192 @@ export default function LandingClient() {
     }
   }, [showPopup]);
 
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
-    setSent(true);
-    setShowPopup(true);
-    // Очищаем форму после успешной отправки
-    if (formRef.current) {
+    if (isSending) return;
+
+    setSendError(null);
+    setIsSending(true);
+
+    try {
+      if (!formRef.current) {
+        throw new Error("Form not mounted");
+      }
+
+      const formData = new FormData(formRef.current);
+      const payload = {
+        name: formData.get("name")?.toString() || "",
+        email: formData.get("email")?.toString() || "",
+        message: formData.get("message")?.toString() || "",
+      };
+
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to send");
+      }
+
+      setSent(true);
+      setShowPopup(true);
+
+      // Очищаем форму после успешной отправки
       formRef.current.reset();
+
+      // Автоматически закрываем попап через 3 секунды
+      setTimeout(() => {
+        setShowPopup(false);
+      }, 3000);
+    } catch (error) {
+      console.error("Failed to submit contact form", error);
+      setSendError("Failed to send message. Please try again later.");
+    } finally {
+      setIsSending(false);
     }
-    // Автоматически закрываем попап через 3 секунды
-    setTimeout(() => {
-      setShowPopup(false);
-    }, 3000);
+  };
+
+  // Loading screen:
+  // - прогресс-бар заполняется минимум за 2 секунды
+  // - экран загрузки скрывается ТОЛЬКО когда прошли 2 секунды И загрузились основные ресурсы (картинки, шрифты, DOM)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    
+    const startTime = Date.now();
+    const LOAD_TIME = 2000; // минимальное время показа = 2 секунды
+    
+    // Список всех изображений для загрузки
+    const imageUrls = [
+      "/media/bw_transperrent-01.png",
+      "/media/bw_transperrent-02.png",
+      "/media/DE.png",
+      "/media/GB.png",
+      "/media/etsy-logo.png",
+      "/media/instagram-logo.png",
+      "/media/email.png",
+      "/media/mobile-busyboard.webp",
+    ];
+    
+    // Промисы загрузки изображений
+    const imagePromises = imageUrls.map(
+      (url) =>
+        new Promise((resolve) => {
+          const img = new Image();
+          img.onload = img.onerror = () => resolve();
+          img.src = url;
+        })
+    );
+
+    // Промис готовности шрифтов (если поддерживается)
+    const fontsPromise =
+      typeof document !== "undefined" && document.fonts && document.fonts.ready
+        ? document.fonts.ready
+        : Promise.resolve();
+
+    // Промис полной загрузки страницы (DOM + ресурсы)
+    const domLoadedPromise = new Promise((resolve) => {
+      if (document.readyState === "complete") {
+        resolve();
+      } else {
+        window.addEventListener("load", () => resolve(), { once: true });
+      }
+    });
+
+    let assetsReady = false;
+    let intervalId;
+
+    const updateProgress = () => {
+      const elapsed = Date.now() - startTime;
+      const t = Math.min(elapsed / LOAD_TIME, 1);
+
+      // Пока ресурсы не загружены, не даём прогрессу упасть ниже 0 и вырасти до 100
+      const targetBase = Math.round(t * 100);
+      const clampedBase = Math.min(targetBase, 99); // максимум 99%, пока ждём ресурсы
+
+      const targetProgress =
+        assetsReady && elapsed >= LOAD_TIME ? 100 : clampedBase;
+
+      setLoadingProgress(targetProgress);
+
+      // Скрываем экран только когда:
+      // - прошли 2 секунды
+      // - и все ресурсы загрузились
+      if (assetsReady && elapsed >= LOAD_TIME) {
+        clearInterval(intervalId);
+        // небольшая задержка, чтобы пользователь увидел 100%
+        setTimeout(() => setIsLoading(false), 120);
+      }
+    };
+
+    // Запускаем прогресс-бар
+    setLoadingProgress(0);
+    intervalId = window.setInterval(updateProgress, 30);
+
+    // Ждём загрузки всех ресурсов
+    Promise.all([...imagePromises, fontsPromise, domLoadedPromise]).then(() => {
+      assetsReady = true;
+    });
+
+    // Очистка интервала при размонтировании
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, []);
+
+  const handleScrollIndicatorClick = () => {
+    if (typeof window === "undefined") return;
+    // На десктопе оставляем обычный скролл, кнопка‑стрелка нужна только на мобильных
+    if (window.innerWidth > 768) return;
+    const maxScroll =
+      document.documentElement.scrollHeight - window.innerHeight;
+    window.scrollTo({ top: maxScroll, behavior: "smooth" });
+  };
+
+  const handleScrollToTopClick = () => {
+    if (typeof window === "undefined") return;
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
     <div className={"under-construction " + (isDark ? "dark" : "light")}>
+      {/* Loading Screen */}
+      {isLoading && (
+        <div className="loading-screen">
+          {/* Real background - same as main page */}
+          <div className="video-background">
+            <video autoPlay loop muted playsInline>
+              <source src="/media/busybuddy-bg.webm" type="video/webm" />
+            </video>
+            <div className="video-overlay"></div>
+            <div className="video-fallback"></div>
+          </div>
+          
+          {/* Mobile background image */}
+          <div className="loading-mobile-bg"></div>
+          
+          <div className="loading-content">
+            <div className="loading-logo">
+              <img src={isDark ? "/media/bw_transperrent-02.png" : "/media/bw_transperrent-01.png"} alt="BusyBuddy.Toys" />
+            </div>
+            <div className="loading-progress-container">
+              <div className="loading-progress-bar">
+                <div 
+                  className="loading-progress-fill" 
+                  style={{ width: `${loadingProgress}%` }}
+                ></div>
+              </div>
+              <p className="loading-percentage">{Math.round(loadingProgress)}%</p>
+            </div>
+          </div>
+        </div>
+      )}
+      
       {/* Video background */}
       <div className="video-background">
         <video autoPlay loop muted playsInline>
@@ -753,14 +984,14 @@ export default function LandingClient() {
                 className="language-flag"
               />
             </button>
-            <button
-              className="theme-toggle"
-              onClick={() => setIsDark((v) => !v)}
+          <button
+            className="theme-toggle"
+            onClick={() => setIsDark((v) => !v)}
               aria-label={isDark ? t.themeToggleToLight : t.themeToggleToDark}
-              type="button"
-            >
-              {isDark ? "☀️" : "🌙"}
-            </button>
+            type="button"
+          >
+            {isDark ? "☀️" : "🌙"}
+          </button>
           </div>
         </div>
 
@@ -774,55 +1005,55 @@ export default function LandingClient() {
               {renderFlyWords(t.description)}
             </p>
 
-            <div
+          <div
               ref={progressRef}
-              className="progress-section"
-              role="progressbar"
-              aria-valuenow={roundedProgress}
-              aria-valuemin="0"
-              aria-valuemax="100"
-            >
-              <div className="progress-label">
+            className="progress-section"
+            role="progressbar"
+            aria-valuenow={roundedProgress}
+            aria-valuemin="0"
+            aria-valuemax="100"
+          >
+            <div className="progress-label">
                 <span aria-label={t.progressLabel}>
                   {renderFlyWords(t.progressLabel)}
                 </span>
                 <span className="progress-percent" aria-live="polite" aria-label={`${displayProgress}%`}>
                   {renderFlyWords(`${displayProgress}%`)}
-                </span>
-              </div>
-              <div className="progress-bar">
+              </span>
+            </div>
+            <div className="progress-bar">
                 <div
                   ref={progressFillRef}
                   className="progress-fill"
                   style={{ width: `${displayProgress}%` }}
                   aria-hidden="true"
                 ></div>
-              </div>
             </div>
+          </div>
 
             <div ref={socialRef} className="social-links">
-              <a
-                ref={etsyRef}
-                href="https://www.etsy.com/shop/BusyBuddyToysEU"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="etsy-button"
+            <a
+              ref={etsyRef}
+              href="https://www.etsy.com/shop/BusyBuddyToysEU"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="etsy-button"
                 aria-label={t.visitEtsyAria}
-              >
-                <img src="/media/etsy-logo.png" alt="" aria-hidden="true" />
+            >
+              <img src="/media/etsy-logo.png" alt="" aria-hidden="true" />
                 <span className="etsy-text" aria-label={t.shopOnEtsy}>
                   {renderFlyWords(t.shopOnEtsy)}
                 </span>
-              </a>
-              <a
+            </a>
+            <a
                 ref={instagramRef}
-                href="https://www.instagram.com/busybuddy.toys"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="instagram-button"
+              href="https://www.instagram.com/busybuddy.toys"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="instagram-button"
                 aria-label={t.instagramAria}
-              >
-                <img src="/media/instagram-logo.png" alt="" aria-hidden="true" />
+            >
+              <img src="/media/instagram-logo.png" alt="" aria-hidden="true" />
                 <span className="social-link-text" aria-label={t.instagram}>
                   {renderFlyWords(t.instagram)}
                 </span>
@@ -905,6 +1136,11 @@ export default function LandingClient() {
                     autoComplete="name"
                     required
                     className="ui-input"
+                    placeholder={
+                      isMobileLayout
+                        ? t.contactNameMobilePlaceholder || t.contactName
+                        : t.contactNamePlaceholder || t.contactName
+                    }
                   />
                 </div>
                 <div className="contact-field" data-form-field>
@@ -922,6 +1158,11 @@ export default function LandingClient() {
                     autoComplete="email"
                     required
                     className="ui-input"
+                    placeholder={
+                      isMobileLayout
+                        ? t.contactEmailMobilePlaceholder || t.contactEmail
+                        : t.contactEmailPlaceholder || t.contactEmail
+                    }
                   />
                 </div>
                 <div className="contact-field" data-form-field>
@@ -938,31 +1179,77 @@ export default function LandingClient() {
                     rows={4}
                     required
                     className="ui-textarea"
-                    placeholder={t.contactPlaceholder}
+                    placeholder={
+                      isMobileLayout
+                        ? t.contactMessageMobilePlaceholder || t.contactMessage
+                        : t.contactMessagePlaceholder || t.contactMessage
+                    }
+                    aria-describedby="contact-message-hint"
                   />
+                  <span id="contact-message-hint" className="sr-only">
+                    {t.contactPlaceholder}
+                  </span>
                 </div>
                 <button
                   ref={submitButtonRef}
                   className="contact-submit ui-button"
                   type="submit"
                   data-form-field
+                  disabled={isSending}
                   aria-label={t.contactSend}
                 >
                   {renderFlyWords(t.contactSend)}
                 </button>
+                {sendError && (
+                  <p className="contact-error" role="alert">
+                    {sendError}
+                  </p>
+                )}
               </form>
             </div>
           </div>
         </div>
       </div>
       
-      {/* Scroll indicator */}
-      <div ref={scrollIndicatorRef} className="scroll-indicator">
-        <div ref={scrollIndicatorInnerRef} className="scroll-downs">
-          <div className="mousey">
-            <div className="scroller"></div>
+      {/* Scroll indicator / mobile jump button */}
+      <div
+        ref={scrollIndicatorRef}
+        className="scroll-indicator"
+      >
+        {isMobileLayout ? (
+          <div ref={scrollIndicatorInnerRef} className="scroll-downs">
+            <button
+              type="button"
+              className="scroll-arrows scroll-arrows-up"
+              onClick={handleScrollToTopClick}
+              aria-label={t.homeAria}
+            >
+              <span className="scroll-arrow-icon">⇡</span>
+              <span className="scroll-arrow-label">
+                {t.homeLabel}
+              </span>
+            </button>
+            <button
+              type="button"
+              className="scroll-arrows scroll-arrows-down"
+              onClick={handleScrollIndicatorClick}
+              aria-label={
+                language === "en" ? "Open contact form" : "Zum Kontaktformular"
+              }
+            >
+              <span className="scroll-arrow-icon">⇣</span>
+              <span className="scroll-arrow-label">
+                {language === "en" ? "Contact us" : "Kontakt"}
+              </span>
+            </button>
           </div>
-        </div>
+        ) : (
+          <div ref={scrollIndicatorInnerRef} className="scroll-indicator-inner">
+            <div className="mousey">
+              <div className="scroller" />
+            </div>
+          </div>
+        )}
       </div>
       
       {/* Success Popup */}
@@ -980,7 +1267,10 @@ export default function LandingClient() {
           <p className="success-popup-text">{t.contactSent}</p>
         </div>
       </div>
+
+      <footer className="site-footer" aria-label="Company information">
+        UR Innovate Studio, SIA, 40203588615, Ražots Latvijā 2026
+      </footer>
     </div>
   );
 }
-
