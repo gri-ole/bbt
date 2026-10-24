@@ -71,7 +71,7 @@ const TRANSLATIONS = {
 };
 
 const START_DATE = new Date("2026-02-20T00:00:00");
-const END_DATE = new Date("2026-09-20T23:59:59");
+const END_DATE = new Date("2026-12-31T23:59:59");
 
 function isNightTime() {
   const now = new Date();
